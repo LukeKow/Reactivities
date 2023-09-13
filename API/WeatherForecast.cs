@@ -2,6 +2,17 @@ namespace API;
 
 public class WeatherForecast
 {
+    public WeatherForecast()
+    {
+    }
+
+    public WeatherForecast(DateOnly date, int temperatureC, string summary)
+    {
+        Summary = summary;
+        Date = date;
+        TemperatureC = temperatureC;
+
+    }
     public DateOnly Date { get; set; }
 
     public int TemperatureC { get; set; }
