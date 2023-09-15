@@ -1,7 +1,6 @@
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useEffect } from 'react';
 import GroupsIcon from '@mui/icons-material/Groups';
 
 type Activity = {
@@ -21,10 +20,6 @@ function App() {
     queryFn: () => axios.get('http://localhost:5000/api/activities')
       .then(activitiesData => activitiesData.data)
   });
-
-  useEffect(() => {
-    console.log(data)
-  }, [data])
 
   return (
     <div>
