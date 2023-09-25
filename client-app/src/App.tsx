@@ -1,7 +1,8 @@
-import { List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import GroupsIcon from '@mui/icons-material/Groups';
+import NavBar from './app/layout/NavBar';
+import ActivityDashboard from './features/activities/dashboard/ActivityDashboard';
 
 type Activity = {
   category: string;
@@ -11,43 +12,32 @@ type Activity = {
   id: string;
   title: string;
   venue: string;
-}
+};
 
 function App() {
-
-  const { isLoading, error, data, isFetching } = useQuery<Activity[], Error>({
+  const {
+    isLoading, error, data, isFetching,
+  } = useQuery<Activity[], Error>({
     queryKey: ['activities'],
-    queryFn: () => axios.get('http://localhost:5000/api/activities')
-      .then(activitiesData => activitiesData.data)
+    queryFn: () => axios.get<Activity[]>('http://localhost:5000/api/activities')
+      .then((activitiesData) => activitiesData.data).catch(() => []),
   });
 
   return (
     <div>
-      <h1>Reactivities</h1>
+      <NavBar />
       {isFetching && <p>Fetching...</p>}
       {isLoading && <p>Loading...</p>}
-      {!isFetching && !isLoading && data &&
-        <List>
-          <ListItem>
-            <ListItemIcon>
-              <GroupsIcon sx={{color: "white"}}/>
-            </ListItemIcon>
-            <ListItemText primary="Reactivities"/>
-          </ListItem>
-          {data?.map(d => 
-            <ListItem key={d.id} disablePadding>
-              <ListItemButton>
-                <ListItemText primary={d.title} />
-              </ListItemButton>
-            </ListItem>
-)         }
-        </List>
-      }
-      
-      
+      {!isFetching && !isLoading && data
+      && (
+      <Box marginTop="7em">
+        <ActivityDashboard activities={data} />
+
+      </Box>
+      )}
       {error && <p>{error.message}</p>}
     </div>
   );
 }
 
-export default App
+export default App;
