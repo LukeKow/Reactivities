@@ -2,12 +2,10 @@
 import {
     Box, Button, TextField, Typography,
 } from '@mui/material';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import { UseMutateFunction } from '@tanstack/react-query';
 import { FieldErrors, SubmitHandler, useForm } from 'react-hook-form';
+import { ActivityDto } from '../../../app/api/agent';
 import { Activity } from '../../../app/models/activity';
-
-type Inputs = Omit<Activity, 'id'>;
 
 type GetErrorArg = keyof Activity;
 type Error = {
@@ -42,42 +40,19 @@ type UpdateActivityFormProps = {
     title: string;
 };
 
-type ActivityFormProps = CreateActivityFormProps | UpdateActivityFormProps;
+type ActivityFormProps = {
+    mutateActivity: UseMutateFunction<Activity, unknown, ActivityDto, unknown>
+} & (CreateActivityFormProps | UpdateActivityFormProps);
 
 export function ActivityForm({
- onCancel, title,
+ onCancel, title, mutateActivity,
 ...rest
 }: ActivityFormProps) {
     const {
         register, handleSubmit, formState: { errors }, reset,
-    } = useForm<Inputs>();
+    } = useForm<ActivityDto>();
 
-    const putActivity = (updatedActivity: Inputs) => axios.put<Inputs>(`http://localhost:5000/api/activities/${rest.updateActivity ? rest.activity.id : ''}`, updatedActivity);
-    const postActivity = (activityToCreate: Inputs) => axios.post<Inputs>('http://localhost:5000/api/activities/', activityToCreate);
-
-    const queryClient = useQueryClient();
-    const updateActivity = useMutation({
-        mutationFn: putActivity,
-        onSuccess: () => {
-            // Invalidate and refetch
-            queryClient.invalidateQueries({ queryKey: ['activities'] });
-        },
-    });
-    const createActivity = useMutation({
-        mutationFn: postActivity,
-        onSuccess: () => {
-            // Invalidate and refetch
-            queryClient.invalidateQueries({ queryKey: ['activities'] });
-        },
-    });
-
-    const onSubmit: SubmitHandler<Inputs> = (data) => {
-        if (rest.updateActivity) {
-            updateActivity.mutate(data);
-        } else {
-            createActivity.mutate(data);
-        }
-    };
+    const onSubmit: SubmitHandler<ActivityDto> = (data) => mutateActivity(data);
 
     return (
       <Box component="form" onReset={() => reset((values) => ({ ...values }))} onSubmit={handleSubmit(onSubmit)} display="flex" flexDirection="column">

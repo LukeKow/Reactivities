@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { useState } from 'react';
+import { agent } from './app/api/agent';
 import NavBar from './app/layout/NavBar';
 import { Activity } from './app/models/activity';
 import { ActivityDashboard } from './features/activities/dashboard/ActivityDashboard';
@@ -13,8 +13,7 @@ function App() {
     isLoading, error, data, isFetching,
   } = useQuery<Activity[], Error>({
     queryKey: ['activities'],
-    queryFn: () => axios.get<Activity[]>('http://localhost:5000/api/activities')
-      .then((activitiesData) => activitiesData.data).catch(() => []),
+    queryFn: () => agent.Activities.list().then((response) => response).catch(() => []),
   });
 
   return (

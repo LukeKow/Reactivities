@@ -1,7 +1,7 @@
 import { Box, Container } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
 import { useState } from 'react';
+import { ActivityDto, agent } from '../../../app/api/agent';
 import { Activity } from '../../../app/models/activity';
 import { ActivityCategory } from '../../../app/models/activityCategory';
 import culture from '../../../assets/categoryImages/culture.jpg';
@@ -32,13 +32,14 @@ type ActivityDashboardProps = {
 export function ActivityDashboard(
     { activities, showCreateActivityForm, onActivityCreateCancel }: ActivityDashboardProps,
 ) {
-    const [selectedActivityIndex, setSelectedActivityIndex] = useState<number | undefined>();
+    const [selectedActivity, setSelectedActivity] = useState<Activity>();
     const [showEditForm, setShowEditForm] = useState(false);
-    const deleteActivity = () => axios.delete(`http://localhost:5000/api/activities/${selectedActivityIndex !== undefined ? activities[selectedActivityIndex].id : ''}`);
 
     const queryClient = useQueryClient();
     const mutation = useMutation({
-        mutationFn: deleteActivity,
+        mutationFn: (activityDto: ActivityDto) => (selectedActivity
+            ? agent.Activities.update(selectedActivity.id, activityDto)
+            : agent.Activities.create(activityDto)),
         onSuccess: () => {
             // Invalidate and refetch
             queryClient.invalidateQueries({ queryKey: ['activities'] });
@@ -47,22 +48,18 @@ export function ActivityDashboard(
 
     const handleActivityListItemClick = (index: number) => {
         onActivityCreateCancel();
-        if (index === selectedActivityIndex) return;
-        setSelectedActivityIndex(index);
+        if (activities[index].id === selectedActivity?.id) return;
+        setSelectedActivity(activities[index]);
         setShowEditForm(false);
     };
 
     const handleCancelEdit = () => {
-        setSelectedActivityIndex(undefined);
+        setSelectedActivity(undefined);
         setShowEditForm(false);
     };
 
     const handleShowEditForm = () => {
         setShowEditForm(true);
-    };
-
-    const handleDelete = () => {
-        mutation.mutate();
     };
 
     return (
@@ -72,30 +69,30 @@ export function ActivityDashboard(
         </Container>
 
         <Box minWidth="50%">
-          {selectedActivityIndex !== undefined
+          {selectedActivity !== undefined
                 && (
 
                 <ActivityDetails
                   activity={{
-                    ...activities[selectedActivityIndex],
-                    imageSrc: getCategoryImage(activities[selectedActivityIndex].category),
+                    ...selectedActivity,
+                    imageSrc: getCategoryImage(selectedActivity.category),
                 }}
                   onEdit={handleShowEditForm}
                   onCancel={handleCancelEdit}
-                  onDelete={handleDelete}
                 />
                     )}
-          {selectedActivityIndex !== undefined && showEditForm && !showCreateActivityForm
+          {selectedActivity !== undefined && showEditForm && !showCreateActivityForm
                     && (
                     <ActivityForm
                       title="Edit Activity"
-                      activity={activities[selectedActivityIndex]}
+                      activity={selectedActivity}
                       onCancel={handleCancelEdit}
                       // eslint-disable-next-line react/jsx-boolean-value
                       updateActivity={true}
+                      mutateActivity={mutation.mutate}
                     />
                     )}
-          {showCreateActivityForm && <ActivityForm title="Create Activity" onCancel={onActivityCreateCancel} updateActivity={false} />}
+          {showCreateActivityForm && <ActivityForm mutateActivity={mutation.mutate} title="Create Activity" onCancel={onActivityCreateCancel} updateActivity={false} />}
         </Box>
       </Container>
     );
