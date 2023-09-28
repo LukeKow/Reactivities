@@ -1,20 +1,14 @@
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { useState } from 'react';
 import NavBar from './app/layout/NavBar';
-import ActivityDashboard from './features/activities/dashboard/ActivityDashboard';
-
-type Activity = {
-  category: string;
-  city: string;
-  date: string;
-  description: string;
-  id: string;
-  title: string;
-  venue: string;
-};
+import { Activity } from './app/models/activity';
+import { ActivityDashboard } from './features/activities/dashboard/ActivityDashboard';
 
 function App() {
+    const [showCreateActivityForm, setShowCreateActivityForm] = useState(false);
+
   const {
     isLoading, error, data, isFetching,
   } = useQuery<Activity[], Error>({
@@ -25,14 +19,17 @@ function App() {
 
   return (
     <div>
-      <NavBar />
+      <NavBar onCreateActivity={() => setShowCreateActivityForm(true)} />
       {isFetching && <p>Fetching...</p>}
       {isLoading && <p>Loading...</p>}
       {!isFetching && !isLoading && data
       && (
       <Box marginTop="7em">
-        <ActivityDashboard activities={data} />
-
+        <ActivityDashboard
+          activities={data}
+          showCreateActivityForm={showCreateActivityForm}
+          onActivityCreateCancel={() => setShowCreateActivityForm(false)}
+        />
       </Box>
       )}
       {error && <p>{error.message}</p>}

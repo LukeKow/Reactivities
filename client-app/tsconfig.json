@@ -29,11 +29,13 @@
             "path": "./tsconfig.node.json"
         }
     ],
-       "allowSyntheticDefaultImports": true,
+
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-"settings": {
-  "json/sort-package-json": "standard",
-  "json/ignore-files": ["**/package-lock.json"],
-  "json/json-with-comments-files": ["**/tsconfig.json", ".vscode/**"],
-}
+
+    "settings": {
+        "json/sort-package-json": "standard",
+        "json/ignore-files": ["**/package-lock.json"],
+        "json/json-with-comments-files": ["**/tsconfig.json"],
+    }
 }

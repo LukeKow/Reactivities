@@ -20,9 +20,9 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateActivity(Activity activity)
+        public async Task<IActionResult> CreateActivity(CreateActivity activity)
         {
-            await Mediator.Send(new Create.Command { Activity = activity });
+            await Mediator.Send(new Create.Command { CreateActivity = activity });
             return Ok();
         }
 

@@ -5,7 +5,11 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import logo from '../../assets/categoryImages/logo.png';
 
-export default function ButtonAppBar() {
+type ButtonAppBarProps = {
+    onCreateActivity: () => void;
+};
+
+export default function ButtonAppBar({ onCreateActivity }:ButtonAppBarProps) {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -17,7 +21,7 @@ export default function ButtonAppBar() {
               Reactivities
             </Typography>
           </Button>
-          <Button color="inherit">Login</Button>
+          <Button color="inherit" onClick={onCreateActivity}>Create Activity</Button>
         </Toolbar>
       </AppBar>
     </Box>
